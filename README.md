@@ -63,7 +63,7 @@ sudo mv avrdude-gpio-autoreset/bin/avrdude-gpio-autoreset /usr/bin/
 ```
 
 ## Wire up
-![RPi Arduino Wire Up](/diagrams/RPi Arduino Wire Up.png)
+![RPi Arduino Wire Up](/diagrams/RPi%20Arduino%20Wire%20Up.png)
 
 ## Upload sketches to Arduino
 - After compiling your own sketch in the Arduino IDE you have to find the generated HEX file and copy it to the Raspberry Pi. On Windows it is located under the temp folder (Press Windows-R, type in %temp% and press Enter). There you will find a build folder containing the HEX file).
