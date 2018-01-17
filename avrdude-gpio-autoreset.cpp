@@ -2,6 +2,7 @@
 // 2016-01-25	init
 //              compile with: g++ -std=c++11 ./includes/GPIOClass.cpp avrdude-gpio-autoreset.cpp -avrdude-gpio-autoreset
 //              -std=c++11 is required for <regex> and takes longer to compile.
+// 2018-01-17   GPIOClass reimplementation
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +16,7 @@
 #include <regex>
 #include "./includes/GPIOClass.h"
 
-
-#define RESET_PIN        "4"                //Pin which do the reset, GPIOx, (double quotes required)
+#define RESET_PIN        4                  //Pin which do the reset, GPIOx
 #define TIMEOUT          5.0                //program quits after x seconds
 #define CLOCK_CORRECTION 10.0               //is required because of using usleep
 #define SEARCH_PATTERN   ".+TIOCM_DTR.+"    //if found in inputLine, reset pin gets triggered
@@ -28,10 +28,11 @@ int getch(void);
 void reset();
 
 //reset pin
-GPIOClass* gpio = new GPIOClass(RESET_PIN);
+GPIOClass* gpio = new GPIOClass();
 
 //main function
 int main(int argc, char *argv[]){
+
     //console input line
     string inputLine;
 
@@ -50,6 +51,7 @@ int main(int argc, char *argv[]){
             if(chr == 10){      //check for new line
                 //printf("Line: %s", inputLine.c_str());
                 if(regex_match(inputLine, regex(SEARCH_PATTERN))){
+                    //printf("========== DOING A RESET ===========\n");
                     reset();
                     return 0;
                 }
@@ -67,12 +69,12 @@ int main(int argc, char *argv[]){
 
 //sends a reset to gpio
 void reset(){
-    gpio->export_gpio();
-    gpio->setdir_gpio("out");
-    gpio->setval_gpio("1");
+    gpio->GPIOExport(RESET_PIN);
+    gpio->GPIODirection(RESET_PIN, 1);
+    gpio->GPIOWrite(RESET_PIN, 1);
     usleep(120000);
-    gpio->setval_gpio("0");
-    gpio->unexport_gpio();
+    gpio->GPIOWrite(RESET_PIN, 0);
+    gpio->GPIOUnexport(RESET_PIN);
     printf("Reset sent.");
 }
 

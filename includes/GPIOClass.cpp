@@ -1,101 +1,130 @@
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <sstream>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
 #include "GPIOClass.h"
 
-using namespace std;
+#define LOW 0
+#define HIGH 1
+#define IN 0
+#define OUT 1
 
 GPIOClass::GPIOClass()
 {
-    this->gpionum = "4"; //GPIO4 is default
 }
 
-GPIOClass::GPIOClass(string gnum)
+int GPIOClass::GPIOExport(int pin)
 {
-    this->gpionum = gnum;  //Instatiate GPIOClass object for GPIO pin number "gnum"
+#define BUFFER_MAX 3
+	char buffer[BUFFER_MAX];
+	ssize_t bytes_written;
+	int fd;
+
+	fd = open("/sys/class/gpio/export", O_WRONLY);
+	if (-1 == fd)
+	{
+		fprintf(stderr, "Failed to open export for writing!\n");
+		return (-1);
+	}
+	
+	bytes_written = snprintf(buffer, BUFFER_MAX, "%d", pin);
+	write(fd, buffer, bytes_written);
+	close(fd);
+	return (0);
 }
 
-int GPIOClass::export_gpio()
+int GPIOClass::GPIOUnexport(int pin)
 {
-    string export_str = "/sys/class/gpio/export";
-    ofstream exportgpio(export_str.c_str()); // Open "export" file. Convert C++ string to C string. Required for all Linux pathnames
-    if (exportgpio < 0){
-        cout << " OPERATION FAILED: Unable to export GPIO"<< this->gpionum <<" ."<< endl;
-        return -1;
-    }
+	char buffer[BUFFER_MAX];
+	ssize_t bytes_written;
+	int fd;
 
-    exportgpio << this->gpionum ; //write GPIO number to export
-    exportgpio.close(); //close export file
-    return 0;
+	fd = open("/sys/class/gpio/unexport", O_WRONLY);
+	if (-1 == fd)
+	{
+		fprintf(stderr, "Failed to open unexport for writing!\n");
+		return (-1);
+	}
+
+	bytes_written = snprintf(buffer, BUFFER_MAX, "%d", pin);
+	write(fd, buffer, bytes_written);
+	close(fd);
+	return (0);
 }
 
-int GPIOClass::unexport_gpio()
+int GPIOClass::GPIODirection(int pin, int dir)
 {
-    string unexport_str = "/sys/class/gpio/unexport";
-    ofstream unexportgpio(unexport_str.c_str()); //Open unexport file
-    if (unexportgpio < 0){
-        cout << " OPERATION FAILED: Unable to unexport GPIO"<< this->gpionum <<" ."<< endl;
-        return -1;
-    }
+	static const char s_directions_str[] = "in\0out";
 
-    unexportgpio << this->gpionum ; //write GPIO number to unexport
-    unexportgpio.close(); //close unexport file
-    return 0;
+#define DIRECTION_MAX 35
+	char path[DIRECTION_MAX];
+	int fd;
+
+	snprintf(path, DIRECTION_MAX, "/sys/class/gpio/gpio%d/direction", pin);
+	fd = open(path, O_WRONLY);
+	if (-1 == fd)
+	{
+		fprintf(stderr, "Failed to open gpio direction for writing!\n");
+		return (-1);
+	}
+
+	if (-1 == write(fd, &s_directions_str[IN == dir ? 0 : 3], IN == dir ? 2 : 3))
+	{
+		fprintf(stderr, "Failed to set direction!\n");
+		return (-1);
+	}
+
+	close(fd);
+	return (0);
 }
 
-int GPIOClass::setdir_gpio(string dir)
+int GPIOClass::GPIORead(int pin)
 {
+#define VALUE_MAX 30
+	char path[VALUE_MAX];
+	char value_str[3];
+	int fd;
 
-    string setdir_str ="/sys/class/gpio/gpio" + this->gpionum + "/direction";
-    ofstream setdirgpio(setdir_str.c_str()); // open direction file for gpio
-        if (setdirgpio < 0){
-            cout << " OPERATION FAILED: Unable to set direction of GPIO"<< this->gpionum <<" ."<< endl;
-            return -1;
-        }
+	snprintf(path, VALUE_MAX, "/sys/class/gpio/gpio%d/value", pin);
+	fd = open(path, O_RDONLY);
+	if (-1 == fd)
+	{
+		fprintf(stderr, "Failed to open gpio value for reading!\n");
+		return (-1);
+	}
 
-        setdirgpio << dir; //write direction to direction file
-        setdirgpio.close(); // close direction file
-        return 0;
+	if (-1 == read(fd, value_str, 3))
+	{
+		fprintf(stderr, "Failed to read value!\n");
+		return (-1);
+	}
+
+	close(fd);
+
+	return (atoi(value_str));
 }
 
-int GPIOClass::setval_gpio(string val)
+int GPIOClass::GPIOWrite(int pin, int value)
 {
+	static const char s_values_str[] = "01";
 
-    string setval_str = "/sys/class/gpio/gpio" + this->gpionum + "/value";
-    ofstream setvalgpio(setval_str.c_str()); // open value file for gpio
-        if (setvalgpio < 0){
-            cout << " OPERATION FAILED: Unable to set the value of GPIO"<< this->gpionum <<" ."<< endl;
-            return -1;
-        }
+	char path[VALUE_MAX];
+	int fd;
 
-        setvalgpio << val ;//write value to value file
-        setvalgpio.close();// close value file
-        return 0;
-}
+	snprintf(path, VALUE_MAX, "/sys/class/gpio/gpio%d/value", pin);
+	fd = open(path, O_WRONLY);
+	if (-1 == fd)
+	{
+		fprintf(stderr, "Failed to open gpio value for writing!\n");
+		return (-1);
+	}
 
-int GPIOClass::getval_gpio(string& val){
+	if (1 != write(fd, &s_values_str[LOW == value ? 0 : 1], 1))
+	{
+		fprintf(stderr, "Failed to write value!\n");
+		return (-1);
+	}
 
-    string getval_str = "/sys/class/gpio/gpio" + this->gpionum + "/value";
-    ifstream getvalgpio(getval_str.c_str());// open value file for gpio
-    if (getvalgpio < 0){
-        cout << " OPERATION FAILED: Unable to get value of GPIO"<< this->gpionum <<" ."<< endl;
-        return -1;
-            }
-
-    getvalgpio >> val ;  //read gpio value
-
-    if(val != "0")
-        val = "1";
-    else
-        val = "0";
-
-    getvalgpio.close(); //close the value file
-    return 0;
-}
-
-string GPIOClass::get_gpionum(){
-
-return this->gpionum;
-
+	close(fd);
+	return (0);
 }
