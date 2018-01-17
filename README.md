@@ -13,8 +13,8 @@ There are some advantages though:
 Instead of using SPI programming this solution talks to the Arduino Bootloader over the serial interface. So you can program your Arduino over serial and then use the serial port for communication between Raspberry Pi and Arduino.
  
 ## History
-2016-01-25 Initial release
-2019-01-17 Enhanced documentation for Raspbian Stretch including RPi 3 and RPi Zero W
+- 2016-01-25 Initial release
+- 2019-01-17 Enhanced documentation for Raspbian Stretch including RPi 3 and RPi Zero W
 
 ## Setup overview
 Download the ZIP file and extract it's content. In short you have to do the following steps
