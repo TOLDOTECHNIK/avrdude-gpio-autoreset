@@ -14,7 +14,7 @@ Instead of using SPI programming this solution talks to the Arduino Bootloader o
  
 ## History
 - 2016-01-25 Initial release
-- 2019-01-17 Enhanced documentation for Raspbian Stretch including RPi 3 and RPi Zero W
+- 2019-01-17 Enhanced documentation for Raspbian Stretch including RPi 3 and RPi Zero W. GPIOClass reimplementaion. Stretch compatibility. 
 
 ## Setup overview
 Download the ZIP file and extract it's content. In short you have to do the following steps
