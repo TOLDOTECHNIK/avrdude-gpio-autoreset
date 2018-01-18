@@ -7,17 +7,17 @@ This tool was inspired by the work of Dean Mao. Thank you.
 There are some advantages though:
 - Standalone (Does not require python or any other dependencies)
 - Fast startup (completely written in C/C++)
-- Has a working timeout built in, so program does not get locked under certain conditions
+- Has a working timeout built in, so the program does not get locked under certain conditions
 - Reset pin gets released again after execution
 
 Instead of using SPI programming this solution talks to the Arduino Bootloader over the serial interface. So you can program your Arduino over serial and then use the serial port for communication between Raspberry Pi and Arduino.
  
 ## History
 - 2016-01-25 Initial release
-- 2019-01-17 Enhanced documentation for Raspbian Stretch including RPi 3 and RPi Zero W. GPIOClass reimplementaion. Stretch compatibility. 
+- 2018-01-17 Enhanced documentation for Raspbian Stretch including RPi 3 and RPi Zero W. GPIOClass reimplementaion. Stretch compatibility. 
 
 ## Setup overview
-Download the ZIP file and extract it's content. In short you have to do the following steps
+Download the respository as ZIP file and extract its content. In short you have to do the following steps
 - Disable serial output on the Raspberry Pi
 - Install avrdude including all dependencies
 - Make a backup copy of avrdude
