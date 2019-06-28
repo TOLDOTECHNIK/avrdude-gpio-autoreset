@@ -2,15 +2,16 @@
 
 ## Introduction
 This is a little command line tool, that helps you programming an Arduino chip attached directly to the RPi GPIO pins.
-Only the RPi hardware serial port /dev/ttyAMA0 (2 pins) and one GPIO pin for resetting the Arduino chip are used. So, no USB port is taken.
+Only the RPi hardware serial port /dev/ttyAMA0 (2 pins), a GPIO pin for resetting the Arduino chip and common GND connection are required. So no USB port is needed.
 This tool was inspired by the work of [Dean Mao](http://www.deanmao.com/2012/08/12/fixing-the-dtr-pin/).
+
 There are some advantages though:
 - Standalone (Does not require python or any other dependencies)
 - Fast startup (completely written in C/C++)
 - Has a working timeout built in, so the program does not get locked under certain conditions
 - Reset pin gets released again after execution
 
-Instead of using SPI programming this solution talks to the Arduino Bootloader over the serial interface. So you can program your Arduino over serial and then use the serial port for communication between Raspberry Pi and Arduino.
+Instead of programming over SPI, this solution talks to the Arduino Bootloader over the serial interface. So you can program your Arduino over serial and then use the serial port for communication between Raspberry Pi and Arduino.
  
 ## History
 - 2016-01-25 initial release
