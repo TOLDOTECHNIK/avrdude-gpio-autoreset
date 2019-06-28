@@ -3,23 +3,24 @@
 //              compile with: g++ -std=c++11 ./includes/GPIOClass.cpp avrdude-gpio-autoreset.cpp -avrdude-gpio-autoreset
 //              -std=c++11 is required for <regex> and takes longer to compile.
 // 2018-01-17   GPIOClass reimplementation
+// 2019-06-28   code cleanup
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cctype>
+#include <ctime>
 #include <iostream>
 #include <string>
-#include <time.h>
+#include <regex>
 #include <termios.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <regex>
 #include "./includes/GPIOClass.h"
 
-#define RESET_PIN        4                  //Pin which do the reset, GPIOx
-#define TIMEOUT          5.0                //program quits after x seconds
-#define CLOCK_CORRECTION 10.0               //is required because of using usleep
-#define SEARCH_PATTERN   ".+TIOCM_DTR.+"    //if found in inputLine, reset pin gets triggered
+#define RESET_PIN                       4                  //Pin which do the reset, GPIOx
+#define TIMEOUT                         5.0                //program quits after x seconds
+#define CLOCK_CORRECTION                10.0               //is required because of using usleep
+#define AVRDUDE_OUTPUT_SEARCH_PATTERN   ".+TIOCM_DTR.+"    //if found in avrdude output (inputLine), reset pin gets triggered
 
 using namespace std;
 
@@ -39,10 +40,12 @@ int main(int argc, char *argv[]){
     //remember current time
     const clock_t begin_time = clock();
 
+    printf("waiting for avrdude reset signal...\n");
+
     while (1){
         //check timeout
         if(float(clock() - begin_time) / CLOCKS_PER_SEC * CLOCK_CORRECTION > TIMEOUT){
-            printf("autoreset timed out.\n");
+            printf("avrdude-gpio-autoreset timed out.\n");
             return 0;
         }
         //handle console input
@@ -50,8 +53,8 @@ int main(int argc, char *argv[]){
         while((chr = getch()) > -1 ){
             if(chr == 10){      //check for new line
                 //printf("Line: %s", inputLine.c_str());
-                if(regex_match(inputLine, regex(SEARCH_PATTERN))){
-                    //printf("========== DOING A RESET ===========\n");
+                if(regex_match(inputLine, regex(AVRDUDE_OUTPUT_SEARCH_PATTERN))){
+                    //printf("========== DO RESET ==========\n");
                     reset();
                     return 0;
                 }
@@ -75,7 +78,7 @@ void reset(){
     usleep(120000);
     gpio->GPIOWrite(RESET_PIN, 0);
     gpio->GPIOUnexport(RESET_PIN);
-    printf("Reset sent.");
+    printf("Reset on GPIO done.");
 }
 
 //read console character

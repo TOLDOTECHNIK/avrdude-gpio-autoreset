@@ -3,7 +3,7 @@
 ## Introduction
 This is a little command line tool, that helps you programming an Arduino chip attached directly to the RPi GPIO pins.
 Only the RPi hardware serial port /dev/ttyAMA0 (2 pins) and one GPIO pin for resetting the Arduino chip are used. So, no USB port is taken.
-This tool was inspired by the work of Dean Mao. Thank you.
+This tool was inspired by the work of [Dean Mao](http://www.deanmao.com/2012/08/12/fixing-the-dtr-pin/).
 There are some advantages though:
 - Standalone (Does not require python or any other dependencies)
 - Fast startup (completely written in C/C++)
@@ -13,8 +13,9 @@ There are some advantages though:
 Instead of using SPI programming this solution talks to the Arduino Bootloader over the serial interface. So you can program your Arduino over serial and then use the serial port for communication between Raspberry Pi and Arduino.
  
 ## History
-- 2016-01-25 Initial release
-- 2018-01-17 Enhanced documentation for Raspbian Stretch including RPi 3 and RPi Zero W. GPIOClass reimplementaion. Stretch compatibility. 
+- 2016-01-25 initial release
+- 2018-01-17 enhanced documentation for Raspbian Stretch including RPi 3 and RPi Zero W. GPIOClass reimplementaion. Debian Stretch compatibility.
+- 2019-06-28 code cleanup
 
 ## Setup overview
 Download the respository as ZIP file and extract its content. In short you have to do the following steps
@@ -28,9 +29,9 @@ If you are interested in how the whole process works you can go to Dean Mao's pa
 ## Requirements
 - Raspberry Pi A/A+, B/B+, 2 or Zero (W)
 - Arduino board or clone
-- 3 jumper wires
+- 4 jumper wires
 - 1 1uF capacitor (or 100nF if connected directly to the microcontroller)
-- 2 Resistors (10k and 15k) for level shifting 5V -> 3.3V (Keep in mind that RPi pins are not 5V tolerant!)
+- 2 resistors (10k and 15k) for level shifting 5V -> 3.3V (Keep in mind that RPi pins are not 5V tolerant!)
 
 ## Setup instructions
 Disable all internal serial output on the Raspberry Pi by typing
